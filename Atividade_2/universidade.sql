@@ -1,17 +1,20 @@
-drop table historico;
-drop table registro;
-drop table banca;
-drop table subsidio;
-drop table bolsa;
-drop table aluno_grad;
-drop table disciplina;
-drop table instrutor_pesquisador;
-drop table curso;
-drop table departamento;
-drop table faculdade;
-drop table aluno;
-drop table docente;
-drop table pessoa;
+drop table historico cascade;
+drop table registro cascade;
+drop table banca cascade;
+drop table subsidio cascade;
+drop table bolsa cascade;
+drop table aluno_grad cascade;
+drop table disciplina cascade;
+drop table instrutor_pesquisador cascade;
+drop table curso cascade;
+drop table departamento cascade;
+drop table faculdade cascade;
+drop table aluno cascade;
+drop table docente cascade;
+drop table pessoa cascade;
+create table instrutor_pesquisador (
+	cod int, primary key (cod)
+);
 
 create table pessoa (
 	ssn int,
@@ -33,33 +36,15 @@ create table docente (
 	ssn integer,
 	salario integer,
 	categoria varchar(50),
+	inst_pesq int,
 	escritorio integer,
 	telefone char(11),
-	primary key (ssn),
-	foreign key (ssn) references pessoa (ssn)
-);
-
-create table aluno (
-	turma int,
-	ssn int,
-	primary key (ssn),
-	foreign key (ssn) references pessoa (ssn)
-);
-create table instrutor_pesquisador (
-	cod int, primary key (cod)
-);
-
-create table aluno_grad (
-	ssn int,
-	faculdade varchar(50),
-	ano int,
-	inst_pesq int,
 	foreign key (inst_pesq) references instrutor_pesquisador(cod),
-	orientador int,
-	foreign key (orientador) references docente(ssn),
 	primary key (ssn),
-	foreign key (ssn) references aluno(ssn)
+	foreign key (ssn) references pessoa (ssn)
 );
+
+
 create table bolsa (
 	num int,
 	primary key (num),
@@ -80,14 +65,6 @@ create table subsidio (
 	primary key (instrutor_pesquisador, bolsa)
 );
 
-create table banca (
-	ssn_aluno int,
-	ssn_docente int,
-	primary key (ssn_aluno, ssn_docente),
-	foreign key (ssn_aluno) references aluno(ssn),
-	foreign key (ssn_docente) references docente
-);
-
 create table faculdade (
 	nome varchar(50) primary key,
 	reitor varchar(200),
@@ -103,7 +80,36 @@ create table departamento (
 	foreign key (faculdade) references faculdade (nome),
 	foreign key (chefe) references docente (ssn)
 );
+create table aluno (
+	turma int,
+	ssn int,
+	primary key (ssn),
+	depto varchar(50),
+	depto_opta varchar(50),
+	foreign key (depto) references departamento(nome),
+	foreign key (depto_opta) references departamento(nome),
+	foreign key (ssn) references pessoa (ssn)
+);
+create table aluno_grad (
+	ssn int,
+	faculdade varchar(50),
+	ano int,
+	inst_pesq int,
+	foreign key (inst_pesq) references instrutor_pesquisador(cod),
+	orientador int,
+	foreign key (orientador) references docente(ssn),
+	primary key (ssn),
+	foreign key (ssn) references aluno(ssn)
+);
 
+
+create table banca (
+	ssn_aluno int,
+	ssn_docente int,
+	primary key (ssn_aluno, ssn_docente),
+	foreign key (ssn_aluno) references aluno(ssn),
+	foreign key (ssn_docente) references docente
+);
 create table curso (
 	codigo int primary key,
 	descricao varchar(50),
@@ -124,7 +130,11 @@ create table disciplina (
 	foreign key (curso) references curso (codigo)
 );
 
-
+create table disciplina_corrente (
+	cod int,
+	primary key (cod),
+	foreign key (cod) references disciplina(cod)
+);
 
 create table historico (
 	ssn_aluno int,
@@ -139,6 +149,14 @@ create table registro (
 	ssn_aluno int,
 	cod_disc int,
 	foreign key (ssn_aluno) references aluno(ssn),
-	foreign key (cod_disc) references disciplina(cod),
+	foreign key (cod_disc) references disciplina_corrente(cod),
 	primary key (ssn_aluno, cod_disc)
-)
+);
+
+create table pertence (
+	docente int,
+	departamento varchar(50),
+	foreign key (docente) references docente(ssn),
+	foreign key (departamento) references departamento(nome)
+
+);
