@@ -1,0 +1,105 @@
+1
+a. Consulta para recuperar os empregados que ganham salário maior que 25.000
+
+	db.empregado.find({ salario: { $gt: 25000}});
+
+b. Consulta para recuperar o ssn, o nome e o endereço dos empregados
+	db.empregado.find({}, {ssn: 1, pnome: 1, endereco: 1, _id: 0})
+
+c. Consulta para recuperar a quantidade média de horas trabalhadas pelos empregados agrupadas por
+departamento.
+	db.trabalha_em.aggregate([{$lookup: {from: "projeto", localField: "pno", foreignField:"pnumero", as:"projetos"}}, {$group: {_id: "$projetos.dnum", "horas": {$avg: "$horas"}}}]);	
+
+d. Consulta para recuperar os departamentos e seus respectivos empregados como agregados dos
+departamentos.
+	db.departamento.aggregate([{$lookup: {from: "empregado", localField: "dnumero", foreignField:"dno", as:"empregados"}}]);
+
+
+2 - 
+a)
+			
+
+	T1	T2	T3	T4											
+	r(x)			
+		r(z)			
+			r(x)
+				r(y)
+	r(z)
+				w(y)
+		r(y)
+				r(z)
+			r(y)
+	w(x)
+	w(z)
+		w(z)
+			w(y)
+				w(z)
+		w(y)
+2 -z> 1
+2 -z> 4
+3 -x> 1
+4 -y> 2
+4 -y> 3
+1 -z> 2
+1 -z> 4
+4 -y> 2
+4 -y> 3
+2 -y> 3
+4 -z> 1
+4 -z> 2
+3 -y> 2
+
+Não serializável (ciclo: 1 -z> 2, 2 -z> 1)
+
+b)
+T1	T2	T3	T4											
+rX
+rZ
+		rX
+wX
+		rY
+wZ
+		wY
+	rZ
+			rY
+			wY
+	rY
+	wZ
+			rZ
+	wY
+			wZ
+1 -z> 2,4
+3 -x> 1
+3 -y> 2,4
+2 -z> 4
+4 -y> 2
+
+Serializável (Sem ciclos)
+
+
+
+
+
+3-
+a)
+REDO: T1, T2, T3, T4
+UNDO: T5
+
+A: 85
+B: 78
+C: 64
+D: 53
+
+b)
+REDO: T1, T2, T3, T4
+NO-UNDO: T5
+
+A: 50
+B: 52
+C: 42
+D: 75
+
+
+
+4- num deu tempo
+
